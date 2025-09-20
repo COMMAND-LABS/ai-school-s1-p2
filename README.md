@@ -1,3 +1,3 @@
 # TLDR
 
-Herein lies an assortment of n8n workflows shared and developed as part of AI school season 1, phase 2.
+Herein lies an assortment of n8n workflows shared and developed as part of AI School Season 1, Phase 2.
