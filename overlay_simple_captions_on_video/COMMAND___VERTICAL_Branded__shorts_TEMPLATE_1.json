@@ -1,0 +1,67 @@
+{
+  "name": "COMMAND - VERTICAL Branded #shorts TEMPLATE 1",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -100,
+        -60
+      ],
+      "id": "b60b2f85-9b28-441e-9b91-e730011cc951",
+      "name": "When clicking ‘Test workflow’"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.json2video.com/v2/movies",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"comment\": \"Video\",\n    \"resolution\": \"instagram-story\",\n    \"quality\": \"high\",\n    \"scenes\": [],\n    \"elements\": [\n        {\n            \"id\": \"qsv8svdr\",\n            \"type\": \"subtitles\",\n            \"captions\": \"\",\n            \"settings\": {\n                \"font-family\": \"LeagueSpartan-Bold\",\n                \"font-url\": \"https://www.dropbox.com/scl/fi/mec6z39upttn5sl9hhauh/LeagueSpartan-Bold.ttf?rlkey=o3elhdrbn29561340w42yrey8&st=0pbdjp00&dl=1\",\n                \"box-color\": \"#000000\",\n                \"font-size\": 200,\n                \"word-color\": \"#FFFFFF\",\n                \"position\": \"top-center\",\n                \"style\": \"classic\",\n                \"outline-color\": \"#000000\",\n                \"outline-width\": 8,\n                \"shadow-color\": \"#000000\",\n                \"shadow-offset\": 4,\n                \"max-words-per-line\": 3\n            }\n        },\n        {\n            \"type\": \"video\",\n            \"src\": \"https://www.dropbox.com/scl/fi/wct86qaewg9b8lws41jsv/9_3_2025_AI_MASTERCLASS_CLIP_15.mp4?rlkey=3s6chfk8bv8k3cj1h6ypbbv0l&st=gb1mmm0b&dl=1\"\n        }\n    ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        120,
+        -60
+      ],
+      "id": "921529af-cad0-4c3e-ae9d-f96ba997cedc",
+      "name": "Overlay Captions",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "VPwMDsXmy5avyoE9",
+          "name": "JSON2Video API Header AAIVA"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Test workflow’": {
+      "main": [
+        [
+          {
+            "node": "Overlay Captions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d7df9293-4153-4b1b-a437-c8fe7f3eee1c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "59163ef64e1cf4dcd8e0818ffdc09c87dbd57c11199a791813b2ff3820cc01aa"
+  },
+  "id": "GCiOtB5nsqjZjfff",
+  "tags": []
+}
