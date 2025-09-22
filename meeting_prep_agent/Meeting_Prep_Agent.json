@@ -1,0 +1,204 @@
+{
+  "name": "Meeting Prep Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "events": [
+          "BOOKING_CREATED"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.calTrigger",
+      "typeVersion": 2,
+      "position": [
+        -180,
+        -160
+      ],
+      "id": "6ba421c9-5844-464b-b5dc-46e300c4d009",
+      "name": "Cal.com Trigger",
+      "webhookId": "f64766f1-e7dd-453b-94f1-c4becd91e77d",
+      "credentials": {
+        "calApi": {
+          "id": "XipsJCyZSzg7xAFd",
+          "name": "Cal account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Cal.com Trigger').item.json.responses.email.value }}",
+        "subject": "re: booking",
+        "message": "={{ $json.output }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        640,
+        -160
+      ],
+      "id": "5f61cb23-29b4-4137-9123-304e3704993d",
+      "name": "Gmail",
+      "webhookId": "68867276-2fe2-407c-9ae2-1b9188cd4255",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "u0VPAGIMYAGFdUsj",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        420,
+        -160
+      ],
+      "id": "a387fd50-aab9-4308-8d20-535691b6838c",
+      "name": "Wait",
+      "webhookId": "f10ac0f4-8211-484f-b66d-7774f0ad0b91"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# TASK\n\nYou are a helpful assistant for an A.I. Automation company called CMD Labs.\nCraft a charming message from the CEO of CMD Labs, Tad Duval, to someone who has recently booked a Discovery call with CMD Labs.\n\n## INFO COLLECTED THROUGH THE BOOKING FORM\n\nName: {{ $json.attendees[0].name }}\nEmail: {{ $json.attendees[0].email }}\nNotes: {{ $json.responses.notes.value }}\nMeeting createdAt: {{ $json.createdAt }}\nMeeting day: {{ $json.startTime.toDateTime().format('cccc') }}\nMeeting startTime: {{ $json.startTime }}\nMeeting endTime: {{ $json.endTime }}\n\n## ADDITIONAL REQUIREMENTS\n\n- Use the serper.dev research tool to add some live data to the mix\n- Make sure the email is professional\n- Respond with the HTML code\n- Only the html code\n- No multimedia in the email ie: no videos, no images, etc.\n- Remove the ```html and ``` at the end so the email body can be sent directly without additional processing",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.8,
+      "position": [
+        40,
+        -160
+      ],
+      "id": "42b2ff9d-1b62-449a-8d3e-be59aa90606c",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        40,
+        60
+      ],
+      "id": "105e36e7-666e-4e59-b8d5-8ded4e415112",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "9cR83q1r8AczelJ3",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "For searching Google and doing research",
+        "method": "POST",
+        "url": "https://google.serper.dev/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "q"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        260,
+        80
+      ],
+      "id": "e7921fe0-5d97-48bb-bb47-f4533929f766",
+      "name": "HTTP Request2",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "xXB6s5RumgoJD9GG",
+          "name": "Serper X-API-KEY"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Cal.com Trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c690cfd5-b721-4c99-8504-557901b2095e",
+  "meta": {
+    "instanceId": "59163ef64e1cf4dcd8e0818ffdc09c87dbd57c11199a791813b2ff3820cc01aa"
+  },
+  "id": "CVSWlggKmZN1AUyN",
+  "tags": []
+}
