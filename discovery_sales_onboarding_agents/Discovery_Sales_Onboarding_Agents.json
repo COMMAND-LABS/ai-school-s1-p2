@@ -1,0 +1,1742 @@
+{
+  "name": "Discovery/Sales/Onboarding Agents",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "c_2a71fde2f31f65a774069b6300b3d22dc41c48e12a7fbd6d51f605c5e6c03819@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "AI Sales Team"
+        },
+        "options": {
+          "timeMin": "={{ $fromAI(\"oneDayBefore\",\"one day before the day that the user requested\") }}",
+          "timeMax": "={{ $fromAI(\"oneDayAfter\",\"one day after the day that the user requested\") }}"
+        }
+      },
+      "id": "d1c9711d-b340-4d38-8e62-0a09dbea0b4e",
+      "name": "Get Calendar",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.2,
+      "position": [
+        1200,
+        660
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "GkouMQ2ZK8iQByti",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "c_2a71fde2f31f65a774069b6300b3d22dc41c48e12a7fbd6d51f605c5e6c03819@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "AI Sales Team"
+        },
+        "start": "={{ $fromAI('start_event_date') }}",
+        "end": "={{ $fromAI('end_event_date') }}",
+        "additionalFields": {
+          "description": "={{ $fromAI('description') }}",
+          "summary": "={{ $fromAI('summary') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.2,
+      "position": [
+        1320,
+        580
+      ],
+      "id": "5dfece93-c190-4d7d-9670-46cb78040da7",
+      "name": "Google Calendar",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "GkouMQ2ZK8iQByti",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1040,
+        580
+      ],
+      "id": "e7413336-e1e3-4734-a6df-906b9cff5942",
+      "name": "OpenAI Chat Model2",
+      "credentials": {
+        "openAiApi": {
+          "id": "9cR83q1r8AczelJ3",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $('Sales Call Transcript').item.json.exportLinks['text/markdown'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        480,
+        380
+      ],
+      "id": "000f9a12-77c6-4aae-b118-f03a558b9512",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "operation": "share",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.id }}",
+          "mode": "id"
+        },
+        "permissionsUi": {
+          "permissionsValues": {
+            "role": "reader",
+            "type": "anyone"
+          }
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        260,
+        380
+      ],
+      "id": "5fa6337c-9ec6-4e5e-8b2e-9d3d0f10759f",
+      "name": "Google Drive1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "Jwfy3PRuO5fUe7Sm",
+          "name": "nate herk gcp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "tad@cmdlabs.io",
+        "subject": "={{ $json.output.email_subject }}",
+        "message": "={{ $json.output.email_body }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1520,
+        380
+      ],
+      "id": "5a34f451-b2c0-4325-a080-7e7a8e268cf4",
+      "name": "Gmail",
+      "webhookId": "b13b5e8e-efe3-4476-abaa-062e9f562e82",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "u0VPAGIMYAGFdUsj",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"email_subject\": \"Concise email subject here\",\n  \"email_body\": \"simply formatted HTML body here\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1480,
+        600
+      ],
+      "id": "2239a762-7917-44a2-ad74-8b7a6e876176",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        660,
+        600
+      ],
+      "id": "b1ab416b-f39e-497b-b22d-cb975de0d4e9",
+      "name": "OpenAI Chat Model1",
+      "credentials": {
+        "openAiApi": {
+          "id": "9cR83q1r8AczelJ3",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appmZ8qG61I1XlB47",
+          "mode": "list",
+          "cachedResultName": "COMMAND",
+          "cachedResultUrl": "https://airtable.com/appmZ8qG61I1XlB47"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbld3Z8JWtZ8M597r",
+          "mode": "list",
+          "cachedResultName": "Implementation Tasks",
+          "cachedResultUrl": "https://airtable.com/appmZ8qG61I1XlB47/tbld3Z8JWtZ8M597r"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Notes": "={{ $fromAI(\"implementation_task_notes\") }}",
+            "Status": "Todo",
+            "Meeting name": "={{ $fromAI(\"meeting_name\") }}",
+            "Meeting date": "={{ $fromAI(\"meeting_date\", \"mm/dd/yyy\") }}",
+            "Client name": "={{ $fromAI(\"client_name\", \"Name of the client\") }}",
+            "Client email": "={{ $fromAI(\"client_email\", \"Email of the client\") }}",
+            "Task name": "={{ $fromAI(\"implementation_task_name\") }}",
+            "Deal size": "={{ $fromAI(\"deal_size\", \"The estimate amount of revenue that this task will lead to\") }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Task name",
+              "displayName": "Task name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Todo",
+                  "value": "Todo"
+                },
+                {
+                  "name": "In progress",
+                  "value": "In progress"
+                },
+                {
+                  "name": "Done",
+                  "value": "Done"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Meeting name",
+              "displayName": "Meeting name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Meeting date",
+              "displayName": "Meeting date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Client name",
+              "displayName": "Client name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Client email",
+              "displayName": "Client email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Deal size",
+              "displayName": "Deal size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        840,
+        600
+      ],
+      "id": "91d1b541-eb1f-4375-a889-1de7e74d8865",
+      "name": "Tasks",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "DTrOscx6cEqEjUTI",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1_OrfKFFDx-gxAsh6NUHBZu_T4lxdrIem",
+          "mode": "list",
+          "cachedResultName": "sales",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1_OrfKFFDx-gxAsh6NUHBZu_T4lxdrIem"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        40,
+        380
+      ],
+      "id": "1b097bd1-e5a5-48ef-9cc9-f86e211898ea",
+      "name": "Sales Call Transcript",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "Jwfy3PRuO5fUe7Sm",
+          "name": "nate herk gcp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "c_2a71fde2f31f65a774069b6300b3d22dc41c48e12a7fbd6d51f605c5e6c03819@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "AI Sales Team"
+        },
+        "options": {
+          "timeMin": "={{ $fromAI(\"oneDayBefore\",\"one day before the day that the user requested\") }}",
+          "timeMax": "={{ $fromAI(\"oneDayAfter\",\"one day after the day that the user requested\") }}"
+        }
+      },
+      "id": "2e247c2a-2579-4d93-b0b0-c725e80d78f9",
+      "name": "Get Calendar1",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.2,
+      "position": [
+        1380,
+        160
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "GkouMQ2ZK8iQByti",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "c_2a71fde2f31f65a774069b6300b3d22dc41c48e12a7fbd6d51f605c5e6c03819@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "AI Sales Team"
+        },
+        "start": "={{ $fromAI('start_event_date') }}",
+        "end": "={{ $fromAI('end_event_date') }}",
+        "additionalFields": {
+          "description": "={{ $fromAI('description') }}",
+          "summary": "={{ $fromAI('summary') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.2,
+      "position": [
+        1520,
+        40
+      ],
+      "id": "e29d2d55-40a5-49d6-b00b-4a7f6955b978",
+      "name": "Google Calendar1",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "GkouMQ2ZK8iQByti",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1240,
+        40
+      ],
+      "id": "b87327bb-3799-4064-926e-98c7ffefc135",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "9cR83q1r8AczelJ3",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "tad@cmdlabs.io",
+        "subject": "={{ $json.output.email_subject }}",
+        "message": "={{ $json.output.email_body }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1720,
+        -160
+      ],
+      "id": "72ff4c81-ce20-47f8-ab7f-efc05775999c",
+      "name": "Gmail1",
+      "webhookId": "b13b5e8e-efe3-4476-abaa-062e9f562e82",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "u0VPAGIMYAGFdUsj",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"email_subject\": \"Concise email subject here\",\n  \"email_body\": \"simply formatted HTML body here\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1700,
+        100
+      ],
+      "id": "fa726b8b-af2a-4c36-aaad-49b11b4d4e01",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        720,
+        100
+      ],
+      "id": "4c51f5b6-5598-425f-9dd8-2cd2cb42fc03",
+      "name": "OpenAI Chat Model3",
+      "credentials": {
+        "openAiApi": {
+          "id": "9cR83q1r8AczelJ3",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appmZ8qG61I1XlB47",
+          "mode": "list",
+          "cachedResultName": "COMMAND",
+          "cachedResultUrl": "https://airtable.com/appmZ8qG61I1XlB47"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbld3Z8JWtZ8M597r",
+          "mode": "list",
+          "cachedResultName": "Implementation Tasks",
+          "cachedResultUrl": "https://airtable.com/appmZ8qG61I1XlB47/tbld3Z8JWtZ8M597r"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Notes": "={{ $fromAI(\"implementation_task_notes\") }}",
+            "Status": "Todo",
+            "Meeting name": "={{ $fromAI(\"meeting_name\") }}",
+            "Meeting date": "={{ $fromAI(\"meeting_date\", \"mm/dd/yyy\") }}",
+            "Client name": "={{ $fromAI(\"client_name\", \"Name of the client\") }}",
+            "Client email": "={{ $fromAI(\"client_email\", \"Email of the client\") }}",
+            "Task name": "={{ $fromAI(\"implementation_task_name\") }}",
+            "Deal size": "={{ $fromAI(\"deal_size\", \"The estimate amount of revenue that this task will lead to\") }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Task name",
+              "displayName": "Task name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Todo",
+                  "value": "Todo"
+                },
+                {
+                  "name": "In progress",
+                  "value": "In progress"
+                },
+                {
+                  "name": "Done",
+                  "value": "Done"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Meeting name",
+              "displayName": "Meeting name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Meeting date",
+              "displayName": "Meeting date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Client name",
+              "displayName": "Client name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Client email",
+              "displayName": "Client email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Deal size",
+              "displayName": "Deal size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        880,
+        120
+      ],
+      "id": "000783ec-b8c6-4096-a0ce-a907b5e0fbfe",
+      "name": "Tasks1",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "DTrOscx6cEqEjUTI",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1oNEkfVSLrUOQHe6wbiQOsB3tXHEEyd9O",
+          "mode": "list",
+          "cachedResultName": "discovery",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1oNEkfVSLrUOQHe6wbiQOsB3tXHEEyd9O"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        40,
+        -160
+      ],
+      "id": "db77e527-572c-4452-96c0-ce989da6d7a0",
+      "name": "Discovery Call Transcript",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "Jwfy3PRuO5fUe7Sm",
+          "name": "nate herk gcp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.exportLinks['text/markdown'] }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDocsOAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        440,
+        -160
+      ],
+      "id": "983971dc-7b34-4667-bd79-393bb43dc8fa",
+      "name": "HTTP Request1",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "ICiqxAwomirMzEd5",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "For searching Google and doing research",
+        "method": "POST",
+        "url": "https://google.serper.dev/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "q"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        1040,
+        120
+      ],
+      "id": "10e521a2-9425-40b9-bdbd-26fd2c2c55b4",
+      "name": "HTTP Request2",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "xXB6s5RumgoJD9GG",
+          "name": "Serper X-API-KEY"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI business strategist responsible for creating tasks, performing research, & outlining follow up steps for collecting revenue for CMD Software, Inc.\n\n## Current Date\n\n{{ $now }}\n\n## Task Description\n\n- We are going to analyze a call transcript\n- Your task is to analyze the call transcript and generate a list of next steps for execution to ensure customer success a maximum value creation for both the customer and cmd Software, Inc.\n- Always perform some research\n\n## Action Steps\n\n- Extract implementation steps\n- Identify key implementation items discussed during the call.\n- List tasks required for successful execution.\n\n## Final output\n\nA summary of all the next steps you suggested and recorded into Airtable\n\n## IMPORTANT\n\n- Ensure the next steps align with client goals discussed in the call.\n- Remove unnecessary details and focus only on execution tasks that are guaranteed to lead to customer success and revenue generation for both the customer and CMD Software, Inc.\n\n## Transcript\n\n```md\n{{ $json.data }}\n```",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        760,
+        -240
+      ],
+      "id": "502b627e-0347-4cc8-a37b-c0ef910b5820",
+      "name": "Discovery Strategist Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI business strategist responsible for creating tasks & outlining follow up steps for collecting revenue for CMD Software, Inc.\n\n## Current Date\n\n{{ $now }}\n\n## Task Description\n\n- We are going to analyze a call transcript\n- Your task is to analyze the call transcript and generate a list of next steps for execution to ensure customer success and maximum value creation for both the customer and CMD Software, Inc.\n\n## Action Steps\n\n- Extract implementation steps\n- Identify key implementation items discussed during the call.\n- List tasks required for successful execution.\n\n## Final output\n\nA summary of all the next steps you suggested and recorded into Airtable\n\n## IMPORTANT\n\n- Ensure the next steps align with client goals discussed in the call.\n- Remove unnecessary details and focus only on execution tasks that are guaranteed to lead to customer success and revenue generation for both the customer and CMD Software, Inc.\n\n## Transcript\n\n```md\n{{ $json.data }}\n```",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        720,
+        380
+      ],
+      "id": "fa102cc4-16dd-4ee2-88f5-cdea8e5b2de0",
+      "name": "Sales Strategy Agent"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a highly capable and versatile AI Agent, designed to manage tasks and workflows based on meeting transcripts. You will handle each task in an efficient, structured, and friendly manner. Your responsibilities include creating tasks, updating systems, and providing updates with a fun yet professional personality. Follow these guidelines:\n\n## Current date\n\n{{ $now }}\n\n## Requirements\n\n- Create calendar events for any todos hinted at in the meeting notes\n- Each calendar event should have a summary and description for context\n- After completing all tasks, send a concise and engaging message via email summarizing:\n    - Actions taken (e.g., \"Created an event at 2pm on April 25th,\" \"Logged 3 tasks in Airtable\").\n    - Calendar events created\n    - Insights or pending items requiring attention.\n    - Use a fun and friendly personality when crafting the message, such as:\n        - Example 1: \"Hey boss! I’ve wrapped up the Sales Call details. Created a new client in Notion, set up 4 follow-up tasks in Airtable, and sent their info to our research agents. Ready to roll on this one!\"\n        - Example 2: \"Quick update: Onboarding’s in motion! Tasks are in Airtable, client’s in Notion, and I’ve set up a project for tracking progress. Let me know if there’s anything else to tackle!\"\nResponse Rules\n        - Example 3: Always act based on the file name provided, and execute the appropriate actions for that meeting type.\nUse the tools specified (Airtable, Notion, AutoResearchAgents, etc.) for all task and data management.\n\n## Final output requirements\n\n- A simply formatted and styled html email \n- A friendly introduction.\n- A summary of the actions completed.\n- A hint of personality to make it fun and engaging.\n\n## Final output JSON schema\n\n```json\n{\n  \"email_subject\": string;\n  \"email_body\": string;\n}\n```\n\n## Transcript\n\n{{ $('HTTP Request').item.json.data }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "="
+        }
+      },
+      "id": "a279ba39-3e9c-4fcb-9b1a-21b7d6576b56",
+      "name": "Sales Calendaring Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1120,
+        380
+      ],
+      "typeVersion": 1.6
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a highly capable and versatile planning Agent, designed to schedule tasks based on meeting transcripts. Your responsibilities include creating meetings and providing updates with a fun yet professional personality. Follow these guidelines:\n\n## Current date\n\n{{ $now }}\n\n## Requirements\n\n- Create calendar events for any todos hinted at in the meeting notes\n- Each calendar event should have a summary and description for additional context\n- Include the prospective client's email or name in the calendar event for additional context\n\n## Final output requirements\n\n- A simply formatted and styled html email \n- A friendly introduction.\n- A summary of the actions completed.\n- A hint of personality to make it fun and engaging.\n\n## Final output JSON schema\n\n```json\n{\n  \"email_subject\": string;\n  \"email_body\": string;\n}\n```\n\n## Output from the Follow up Strategist Agent\n\n{{ $json.output }}\n\n## Transcript\n\n{{ $('HTTP Request1').item.json.data }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "="
+        }
+      },
+      "id": "142a191d-012c-4d17-a0c7-e7532f7e0087",
+      "name": "Discovery Calendaring Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1300,
+        -160
+      ],
+      "typeVersion": 1.6
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "c_2a71fde2f31f65a774069b6300b3d22dc41c48e12a7fbd6d51f605c5e6c03819@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "AI Sales Team"
+        },
+        "options": {
+          "timeMin": "={{ $fromAI(\"oneDayBefore\",\"one day before the day that the user requested\") }}",
+          "timeMax": "={{ $fromAI(\"oneDayAfter\",\"one day after the day that the user requested\") }}"
+        }
+      },
+      "id": "7a30d286-d93f-42db-b664-fa026f6aa296",
+      "name": "Get Calendar2",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.2,
+      "position": [
+        1400,
+        1200
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "GkouMQ2ZK8iQByti",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "c_2a71fde2f31f65a774069b6300b3d22dc41c48e12a7fbd6d51f605c5e6c03819@group.calendar.google.com",
+          "mode": "list",
+          "cachedResultName": "AI Sales Team"
+        },
+        "start": "={{ $fromAI('start_event_date') }}",
+        "end": "={{ $fromAI('end_event_date') }}",
+        "additionalFields": {
+          "description": "={{ $fromAI('description') }}",
+          "summary": "={{ $fromAI('summary') }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.2,
+      "position": [
+        1520,
+        1100
+      ],
+      "id": "0dd15936-cc13-4b4e-8f08-1770795fd24a",
+      "name": "Google Calendar2",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "GkouMQ2ZK8iQByti",
+          "name": "Google Calendar account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1260,
+        1060
+      ],
+      "id": "2ae96c6b-5db5-46e7-aaff-53cd7771d412",
+      "name": "OpenAI Chat Model4",
+      "credentials": {
+        "openAiApi": {
+          "id": "9cR83q1r8AczelJ3",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "tad@cmdlabs.io",
+        "subject": "={{ $('Onboarding Calendaring Agent').item.json.output.email_subject }}",
+        "message": "={{ $('Onboarding Calendaring Agent').item.json.output.email_body }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2220,
+        880
+      ],
+      "id": "aadc2264-76f0-4763-9db2-bd3fdb5f0872",
+      "name": "Gmail2",
+      "webhookId": "b13b5e8e-efe3-4476-abaa-062e9f562e82",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "u0VPAGIMYAGFdUsj",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"email_subject\": \"Concise email subject here\",\n  \"email_body\": \"simply formatted HTML body here\",\n  \"client_onboarding_overview\": \"markdown formatted onboarding steps\",\n  \"client_onboarding_doc_name\": \"client onboarding doc name with client name or email included\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1680,
+        1180
+      ],
+      "id": "d6cc6bd8-b68a-4a4c-959f-d0c7e073f327",
+      "name": "Structured Output Parser2"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o",
+          "mode": "list",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        660,
+        1120
+      ],
+      "id": "c0430977-9dbe-41c1-a29e-060960767d7b",
+      "name": "OpenAI Chat Model5",
+      "credentials": {
+        "openAiApi": {
+          "id": "9cR83q1r8AczelJ3",
+          "name": "OpenAi account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "create",
+        "base": {
+          "__rl": true,
+          "value": "appmZ8qG61I1XlB47",
+          "mode": "list",
+          "cachedResultName": "COMMAND",
+          "cachedResultUrl": "https://airtable.com/appmZ8qG61I1XlB47"
+        },
+        "table": {
+          "__rl": true,
+          "value": "tbl7gyIUOFbSUSUTQ",
+          "mode": "list",
+          "cachedResultName": "Onboarding Tasks",
+          "cachedResultUrl": "https://airtable.com/appmZ8qG61I1XlB47/tbl7gyIUOFbSUSUTQ"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Notes": "={{ $fromAI(\"onboarding_task_notes\") }}",
+            "Status": "Todo",
+            "Meeting name": "={{ $fromAI(\"meeting_name\") }}",
+            "Meeting date": "={{ $fromAI(\"meeting_date\", \"mm/dd/yyy\") }}",
+            "Client name": "={{ $fromAI(\"client_name\", \"Name of the client\") }}",
+            "Client email": "={{ $fromAI(\"client_email\", \"Email of the client\") }}",
+            "Task name": "={{ $fromAI(\"onboarding_task_name\") }}",
+            "Deal size": "={{ $fromAI(\"deal_size\", \"The estimate amount of revenue that this task will lead to\") }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "ID",
+              "displayName": "ID",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": true,
+              "removed": false
+            },
+            {
+              "id": "Task name",
+              "displayName": "Task name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Notes",
+              "displayName": "Notes",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Status",
+              "displayName": "Status",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "options",
+              "options": [
+                {
+                  "name": "Todo",
+                  "value": "Todo"
+                },
+                {
+                  "name": "In progress",
+                  "value": "In progress"
+                },
+                {
+                  "name": "Done",
+                  "value": "Done"
+                }
+              ],
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Meeting name",
+              "displayName": "Meeting name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Meeting date",
+              "displayName": "Meeting date",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "dateTime",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Client name",
+              "displayName": "Client name",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Client email",
+              "displayName": "Client email",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "Deal size",
+              "displayName": "Deal size",
+              "required": false,
+              "defaultMatch": false,
+              "canBeUsedToMatch": true,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.airtableTool",
+      "typeVersion": 2.1,
+      "position": [
+        820,
+        1220
+      ],
+      "id": "eecffa38-b151-43ca-aec9-80650882e358",
+      "name": "Tasks2",
+      "credentials": {
+        "airtableTokenApi": {
+          "id": "DTrOscx6cEqEjUTI",
+          "name": "Airtable Personal Access Token account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.exportLinks['text/markdown'] }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDocsOAuth2Api",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        380,
+        880
+      ],
+      "id": "7f3b4e8c-0f6e-4a5c-a644-896c60f6f7a6",
+      "name": "HTTP Request3",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "ICiqxAwomirMzEd5",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "For searching Google and doing research",
+        "method": "POST",
+        "url": "https://google.serper.dev/search",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "parametersBody": {
+          "values": [
+            {
+              "name": "q"
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1.1,
+      "position": [
+        980,
+        1100
+      ],
+      "id": "2feb0aa5-6c71-491f-9fe6-38c69d73d049",
+      "name": "HTTP Request4",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "xXB6s5RumgoJD9GG",
+          "name": "Serper X-API-KEY"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1RSBh2EboLjRTokCFTru5ShrN2hro4M-x",
+          "mode": "id"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        40,
+        880
+      ],
+      "id": "91fb9fe2-6831-4363-a1a3-cccb5127e19e",
+      "name": "Onboarding Call Transcript",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "Jwfy3PRuO5fUe7Sm",
+          "name": "nate herk gcp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "folderId": "1lDw83KdfJpp5h-51jo0pltKcxiRnpZ9Q",
+        "title": "={{ $json.output.client_onboarding_doc_name }}"
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1760,
+        880
+      ],
+      "id": "208077fd-a58c-4289-b647-953166439a32",
+      "name": "Google Docs",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "ICiqxAwomirMzEd5",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an AI business strategist responsible for creating tasks, performing research, & outlining follow up steps for collecting revenue for CMD Software, Inc.\n\n## Current Date\n\n{{ $now }}\n\n## Task Description\n\n- We are going to analyze a call transcript\n- Your task is to analyze the call transcript and generate a list of next steps for execution to ensure customer success a maximum value creation for both the customer and cmd Software, Inc.\n- Always perform some research\n\n## Action Steps\n\n- Extract implementation steps\n- Identify key implementation items discussed during the call.\n- List tasks required for successful execution.\n\n## Final output\n\nA summary of all the next steps you suggested and recorded into Airtable\n\n## IMPORTANT\n\n- Ensure the next steps align with client goals discussed in the call.\n- Remove unnecessary details and focus only on execution tasks that are guaranteed to lead to customer success and revenue generation for both the customer and CMD Software, Inc.\n\n## Transcript\n\n```md\n{{ $json.data }}\n```",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        720,
+        880
+      ],
+      "id": "3266a67e-d291-4fb8-8d47-0a130c1f3989",
+      "name": "Onboarding Strategist Agent"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentURL": "={{ $json.id }}",
+        "simple": false,
+        "actionsUi": {
+          "actionFields": [
+            {
+              "action": "insert",
+              "text": "={{ $('Onboarding Calendaring Agent').item.json.output.client_onboarding_overview }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.googleDocs",
+      "typeVersion": 2,
+      "position": [
+        1980,
+        880
+      ],
+      "id": "f02dfc65-ea9e-4d91-b681-430e17c977c8",
+      "name": "Google Docs1",
+      "credentials": {
+        "googleDocsOAuth2Api": {
+          "id": "ICiqxAwomirMzEd5",
+          "name": "Google Docs account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a highly capable and versatile planning Agent, designed to schedule tasks based on meeting transcripts. Your responsibilities include creating meetings and providing updates with a fun yet professional personality. Follow these guidelines:\n\n## Current date\n\n{{ $now }}\n\n## Requirements\n\n- Create calendar events for any todos hinted at in the meeting notes\n- Each calendar event should have a summary and description for additional context\n- Include the prospective client's email or name in the calendar event for additional context\n\n## Final output requirements\n\n- A simply formatted and styled html email \n- A friendly introduction.\n- A summary of the actions completed.\n- A hint of personality to make it fun and engaging.\n\n## Final output JSON schema\n\n```json\n{\n  \"email_subject\": string;\n  \"email_body\": string;\n}\n```\n\n## Output from the Follow up Strategist Agent\n\n{{ $json.output }}\n\n## Transcript\n\n{{ $('HTTP Request3').item.json.data }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "="
+        }
+      },
+      "id": "abb75e35-d387-4ab5-a446-560b41e1dc1b",
+      "name": "Onboarding Calendaring Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1340,
+        880
+      ],
+      "typeVersion": 1.6
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "Sales Calendaring Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar": {
+      "ai_tool": [
+        [
+          {
+            "node": "Sales Calendaring Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Sales Calendaring Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Sales Strategy Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Sales Calendaring Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Sales Strategy Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tasks": {
+      "ai_tool": [
+        [
+          {
+            "node": "Sales Strategy Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sales Call Transcript": {
+      "main": [
+        [
+          {
+            "node": "Google Drive1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Calendar1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Discovery Calendaring Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Discovery Calendaring Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Discovery Calendaring Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Discovery Calendaring Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Discovery Strategist Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tasks1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Discovery Strategist Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discovery Call Transcript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Discovery Strategist Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Discovery Strategist Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discovery Strategist Agent": {
+      "main": [
+        [
+          {
+            "node": "Discovery Calendaring Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sales Strategy Agent": {
+      "main": [
+        [
+          {
+            "node": "Sales Calendaring Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sales Calendaring Agent": {
+      "main": [
+        [
+          {
+            "node": "Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discovery Calendaring Agent": {
+      "main": [
+        [
+          {
+            "node": "Gmail1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Calendar2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Onboarding Calendaring Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Onboarding Calendaring Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Onboarding Calendaring Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser2": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Onboarding Calendaring Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Onboarding Strategist Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tasks2": {
+      "ai_tool": [
+        [
+          {
+            "node": "Onboarding Strategist Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Onboarding Strategist Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "ai_tool": [
+        [
+          {
+            "node": "Onboarding Strategist Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Onboarding Call Transcript": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Onboarding Strategist Agent": {
+      "main": [
+        [
+          {
+            "node": "Onboarding Calendaring Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Docs": {
+      "main": [
+        [
+          {
+            "node": "Google Docs1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Docs1": {
+      "main": [
+        [
+          {
+            "node": "Gmail2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Onboarding Calendaring Agent": {
+      "main": [
+        [
+          {
+            "node": "Google Docs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "71640230-3994-4f62-9536-b15a5409e9d0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "59163ef64e1cf4dcd8e0818ffdc09c87dbd57c11199a791813b2ff3820cc01aa"
+  },
+  "id": "um5HHE7Gk3LpXF2E",
+  "tags": []
+}
