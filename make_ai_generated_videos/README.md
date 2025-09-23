@@ -1,6 +1,6 @@
 # TLDR
 
-Here is a collection of workflows for creating AI-generated videos
+Here is a collection of workflows for creating AI-generated videos inspired mostly by Stephen G. Pope.
 
 ## Prerequisites
 
