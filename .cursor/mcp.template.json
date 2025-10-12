@@ -1,0 +1,13 @@
+{
+  "mcpServers": {
+    "airtable": {
+      "command": "/Users/a/.nvm/versions/node/v20.11.1/bin/node",
+      "args": [
+        "/Users/a/src/actual_projects/ai-school-s1-p2-playground/airtable-mcp/build/index.js"
+      ],
+      "env": {
+        "AIRTABLE_API_KEY": "**********"
+      }
+    }
+  }
+}
