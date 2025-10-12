@@ -1,0 +1,368 @@
+{
+  "name": "News report",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "manual-trigger",
+      "name": "When clicking 'Test workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        360
+      ]
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "websites",
+              "type": "arrayValue",
+              "arrayValue": "=[\n  \"http://haitiantimes.com/\",\n  \"https://lenouvelliste.com/\"\n]"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "configure-websites",
+      "name": "Configure Websites",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3,
+      "position": [
+        192,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.websites }}",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "id": "fetch-website",
+      "name": "Fetch Website Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4,
+      "position": [
+        864,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "websites",
+        "options": {}
+      },
+      "id": "split-array",
+      "name": "Split Into Items",
+      "type": "n8n-nodes-base.itemLists",
+      "typeVersion": 3,
+      "position": [
+        416,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const completions = $input.all();\nlet articlesAsString = \"\";\nconsole.log('completions', completions)\n\nconsole.log('completions.length', completions.length)\nconsole.log(completions[0].json.data.length)\n\nfor (let i = 0; i < completions[0].json.data.length; i++) {\n\n  let articlesForCompletion = completions[0].json.data[i].message.content.articles\n\n\n  console.log('articlesForCompletion', articlesForCompletion)\n\n  for (let j = 0; j < articlesForCompletion.length; j++) {  \n    articlesAsString += `${articlesForCompletion[j].headline}, ${articlesForCompletion[j].summary}, ${articlesForCompletion[j].linkToArticle}\\n\\n`; \n  }\n\n}\n\n\nreturn { articlesAsString }\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1152,
+        96
+      ],
+      "id": "b9a5f1eb-361e-4ab8-a7ec-37f8d2b1e15e",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "=data",
+        "options": {}
+      },
+      "id": "aggregate-results",
+      "name": "Aggregate All Results",
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        864,
+        96
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "loop-websites",
+      "name": "Loop Over Websites",
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        640,
+        288
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all().map((item) => item.json);\nlet htmlEmail = \"<html><body><ul>\";\n\nitems.forEach((item) => {\n  item.message.content.articles.forEach((article, index) => {\n    htmlEmail += `<li><a href=\"${article.linkToArticle}\">${index+1}. ${article.headline}</a><p>${article.summary}</p></li>`;\n  });\n});\n\nhtmlEmail += \"</ul></body></html>\";\n\nreturn { htmlEmail };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1792,
+        96
+      ],
+      "id": "f76282e8-b0be-48d4-9328-877d3058e7b3",
+      "name": "Code in JavaScript1"
+    },
+    {
+      "parameters": {
+        "sendTo": "tad@cmdlabs.io",
+        "subject": "HAITIAN NEWS REPORT FROM N8N",
+        "message": "={{ $json.htmlEmail }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2016,
+        96
+      ],
+      "id": "2bf321b4-cced-41d1-a7bd-ab818ff120a3",
+      "name": "Send a message",
+      "webhookId": "f8d57973-00c1-40d2-aea7-ea5a80a10f06",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "XGmbUuCuYARIoavz",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -32,
+        168
+      ],
+      "id": "979e5b6d-188d-47a1-ab43-417b20ed8807",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-5-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=# TASK\n\nExtract the top five articles related to Haiti given the current date of {{ $now.toLocaleString() }}\n\n## JSON OUTPUT SCHEMA\n\n{\n  \"articles\": [{\n    \"headline\": string;\n    \"summary\": string;\n    \"linkToArticle\": string;\n  }]\n}\n\n## RAW WEBSITE INFORMATION\n\n{{ $json.data }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1088,
+        360
+      ],
+      "id": "f113c8ac-9fc4-4460-8bc9-e96fdfe38bdb",
+      "name": "Collect 5 articles from front page",
+      "credentials": {
+        "openAiApi": {
+          "id": "3Pi4ZntDXCnJXClE",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-mini",
+          "mode": "list",
+          "cachedResultName": "GPT-5-MINI"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=# TASK\n\nExtract the top five articles related to Haiti given the current date of {{ $now.toLocaleString() }}\n\n## JSON OUTPUT SCHEMA\n\n{\n  \"articles\": [{\n    \"headline\": string;\n    \"summary\": string;\n    \"linkToArticle\": string;\n  }]\n}\n\n## RAW WEBSITE INFORMATION\n\n{{ $json.articlesAsString }}"
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1440,
+        96
+      ],
+      "id": "200765d1-7bc3-46cb-9b12-eb1d825c9fa4",
+      "name": "Collect top 5 articles across all websites",
+      "credentials": {
+        "openAiApi": {
+          "id": "3Pi4ZntDXCnJXClE",
+          "name": "OpenAi account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking 'Test workflow'": {
+      "main": [
+        [
+          {
+            "node": "Configure Websites",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Website Content": {
+      "main": [
+        [
+          {
+            "node": "Collect 5 articles from front page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configure Websites": {
+      "main": [
+        [
+          {
+            "node": "Split Into Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Into Items": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Websites",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Collect top 5 articles across all websites",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate All Results": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Websites": {
+      "main": [
+        [
+          {
+            "node": "Aggregate All Results",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch Website Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Configure Websites",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect 5 articles from front page": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Websites",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect top 5 articles across all websites": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {},
+  "versionId": "3f3b513d-d547-4de4-a736-7cb12207c0e9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "59163ef64e1cf4dcd8e0818ffdc09c87dbd57c11199a791813b2ff3820cc01aa"
+  },
+  "id": "v74H0mAWEnzTvGUP",
+  "tags": []
+}
